@@ -1,25 +1,20 @@
 const app = require('express')();
+const { join } = require('path')
 //Doing For socket as on npm documentation 
-const server = require('http').createServer(app);
-const io = require('socket.io')(server);
-io.on('connection', client => { console.log('Socket Connected');
-client.on('events',(data)=>{
-    console.log(data,"data on event!!!");
-    emiting(data)
-    })
- 
-});
-function emiting(data){
-
-client.emit('events',{
-    msg:'data recived',
-    content:data
-});
-}
-// ----------------------------------------------
-app.get('/',(req,res)=>{
-    res.send('<h1>Hello from Socket Server</h1>');
+const nodeServer = require('http').createServer(app);
+const { Server } = require('socket.io');
+const io = new Server(nodeServer)
+app.get('/', (req, res) => {
+    res.sendFile(join(__dirname, './index.html'));
 })
-server.listen(3000,()=>{
+io.on('connection', socket => {
+    console.log('New User Connected...........');
+    
+    socket.on('chat', (data) => {
+       io.emit('chat',data)
+    })
+
+});
+nodeServer.listen(3000, () => {
     console.log(`Server is Listening on http://localhost:3000/`);
 })
